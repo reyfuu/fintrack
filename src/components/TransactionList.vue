@@ -59,7 +59,8 @@
             <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] hidden sm:table-cell">Kategori</th>
             <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] hidden md:table-cell">Tanggal</th>
             <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] text-right">Jumlah</th>
-            <th class="w-10 px-0 border-b border-[#222533]"></th>
+            <!-- Aksi: Edit + Hapus -->
+            <th class="w-20 px-0 border-b border-[#222533]"></th>
           </tr>
         </thead>
         <tbody>
@@ -67,6 +68,7 @@
             v-for="tx in filtered"
             :key="tx.id"
             class="group hover:bg-white/[0.02]"
+            :class="editingId === tx.id ? 'ring-1 ring-[rgba(99,102,241,0.3)] ring-inset rounded' : ''"
           >
             <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle">
               <div class="flex items-center gap-2.5">
@@ -91,14 +93,26 @@
                 {{ tx.type === 'income' ? '+' : '-' }}{{ formatIDR(tx.amount) }}
               </span>
             </td>
-            <td class="px-1 py-3 border-b border-white/[0.03] align-middle text-center w-10">
-              <button
-                @click="remove(tx.id)"
-                title="Hapus catatan"
-                class="opacity-0 group-hover:opacity-100 bg-transparent border border-transparent text-[#9ca3af] cursor-pointer p-1.5 rounded inline-flex items-center justify-center transition-all duration-150 hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.2)] hover:text-[#f43f5e]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-              </button>
+            <!-- Action buttons -->
+            <td class="px-1 py-3 border-b border-white/[0.03] align-middle text-center w-20">
+              <div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                <!-- Edit -->
+                <button
+                  @click="emit('edit-transaction', tx)"
+                  title="Edit transaksi"
+                  class="bg-transparent border border-transparent text-[#9ca3af] cursor-pointer p-1.5 rounded inline-flex items-center justify-center transition-all duration-150 hover:bg-[rgba(99,102,241,0.08)] hover:border-[rgba(99,102,241,0.2)] hover:text-[#6366f1]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+                <!-- Delete -->
+                <button
+                  @click="remove(tx.id)"
+                  title="Hapus catatan"
+                  class="bg-transparent border border-transparent text-[#9ca3af] cursor-pointer p-1.5 rounded inline-flex items-center justify-center transition-all duration-150 hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.2)] hover:text-[#f43f5e]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -111,17 +125,18 @@
 import { ref, computed } from 'vue';
 
 const props = defineProps({
-  transactions: { type: Array, required: true }
+  transactions: { type: Array, required: true },
+  editingId:    { type: [Number, String], default: null }
 });
 
-const emit = defineEmits(['transaction-deleted']);
+const emit = defineEmits(['transaction-deleted', 'edit-transaction']);
 
 const activeFilter = ref('all');
 const search = ref('');
 
 const filters = [
-  { id: 'all', label: 'Semua' },
-  { id: 'income', label: 'Pemasukan' },
+  { id: 'all',     label: 'Semua' },
+  { id: 'income',  label: 'Pemasukan' },
   { id: 'expense', label: 'Pengeluaran' },
 ];
 

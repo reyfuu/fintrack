@@ -1,8 +1,31 @@
 <template>
   <div class="card h-fit">
-    <div class="mb-5">
-      <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">Transaksi Baru</h3>
-      <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">Catat entri keuangan baru</p>
+    <div class="mb-5 flex items-start justify-between">
+      <div>
+        <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">
+          {{ editData ? 'Edit Transaksi' : 'Transaksi Baru' }}
+        </h3>
+        <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">
+          {{ editData ? 'Perbarui data transaksi yang dipilih' : 'Catat entri keuangan baru' }}
+        </p>
+      </div>
+      <!-- Cancel edit button -->
+      <button
+        v-if="editData"
+        type="button"
+        @click="emit('cancel-edit')"
+        class="text-[0.75rem] text-[#9ca3af] hover:text-[#f3f4f6] border border-[#222533] rounded px-2.5 py-1 bg-[#171a26] cursor-pointer transition-all duration-150"
+      >
+        Batal
+      </button>
+    </div>
+
+    <!-- Error message -->
+    <div
+      v-if="errorMsg"
+      class="mb-4 px-3 py-2.5 bg-[rgba(244,63,94,0.08)] border border-[rgba(244,63,94,0.2)] rounded text-[#f43f5e] text-[0.8rem]"
+    >
+      {{ errorMsg }}
     </div>
 
     <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
@@ -97,11 +120,14 @@
         type="submit"
         :disabled="loading"
         class="mt-2 py-3 border border-transparent rounded text-[0.88rem] font-semibold text-white cursor-pointer transition-all duration-150 active:translate-y-px disabled:opacity-40 disabled:cursor-not-allowed"
-        :class="form.type === 'income'
-          ? 'bg-[#10b981] hover:opacity-90'
-          : 'bg-[#6366f1] hover:opacity-90'"
+        :class="editData
+          ? 'bg-[#6366f1] hover:opacity-90'
+          : form.type === 'income'
+            ? 'bg-[#10b981] hover:opacity-90'
+            : 'bg-[#6366f1] hover:opacity-90'"
       >
         <span v-if="loading">Memproses…</span>
+        <span v-else-if="editData">Simpan Perubahan</span>
         <span v-else>Simpan {{ form.type === 'income' ? 'Pemasukan' : 'Pengeluaran' }}</span>
       </button>
     </form>
@@ -109,12 +135,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
-const emit = defineEmits(['transaction-added']);
+const props = defineProps({
+  editData: { type: Object, default: null }
+});
+
+const emit = defineEmits(['transaction-added', 'cancel-edit']);
 const loading = ref(false);
+const errorMsg = ref('');
 
-const form = ref({
+const defaultForm = () => ({
   type: 'expense',
   amount: '',
   category: '',
@@ -122,7 +153,24 @@ const form = ref({
   description: ''
 });
 
-const incomeCategories = ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'];
+const form = ref(defaultForm());
+
+// Saat editData berubah, isi form dengan data yang akan diedit
+watch(() => props.editData, (val) => {
+  if (val) {
+    form.value = {
+      type:        val.type,
+      amount:      val.amount,
+      category:    val.category,
+      date:        val.date?.split('T')[0] ?? val.date,
+      description: val.description || ''
+    };
+  } else {
+    form.value = defaultForm();
+  }
+}, { immediate: true });
+
+const incomeCategories  = ['Gaji', 'Freelance', 'Investasi', 'Bonus', 'Lainnya'];
 const expenseCategories = ['Makanan', 'Transportasi', 'Utilitas', 'Hiburan', 'Belanja', 'Kesehatan', 'Lainnya'];
 
 const categories = computed(() =>
@@ -132,20 +180,34 @@ const categories = computed(() =>
 const handleSubmit = async () => {
   if (!form.value.amount || !form.value.category || !form.value.date) return;
   loading.value = true;
+  errorMsg.value = '';
+
   try {
-    const res = await fetch('/api/transactions', {
-      method: 'POST',
+    const isEdit = !!props.editData;
+    const url    = isEdit ? `/api/transactions/${props.editData.id}` : '/api/transactions';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    const res  = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form.value)
+      body:    JSON.stringify(form.value)
     });
-    if (res.ok) {
-      emit('transaction-added');
-      form.value.amount = '';
-      form.value.description = '';
-      form.value.category = '';
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorMsg.value = data.error || 'Terjadi kesalahan.';
+      return;
+    }
+
+    emit('transaction-added');
+
+    if (!isEdit) {
+      form.value = defaultForm();
     }
   } catch (e) {
     console.error('Save failed:', e);
+    errorMsg.value = 'Gagal menyimpan transaksi. Cek koneksi server.';
   } finally {
     loading.value = false;
   }

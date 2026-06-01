@@ -87,8 +87,17 @@
         <!-- Transactions -->
         <section v-else-if="activeView === 'transactions'" class="animate-fadein">
           <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start">
-            <TransactionForm @transaction-added="fetchData" />
-            <TransactionList :transactions="transactions" @transaction-deleted="fetchData" />
+            <TransactionForm
+              :editData="editingTransaction"
+              @transaction-added="onSaved"
+              @cancel-edit="editingTransaction = null"
+            />
+            <TransactionList
+              :transactions="transactions"
+              :editingId="editingTransaction?.id"
+              @transaction-deleted="fetchData"
+              @edit-transaction="startEdit"
+            />
           </div>
         </section>
 
@@ -98,6 +107,7 @@
             <TransactionForm @transaction-added="() => { fetchData(); activeView = 'transactions'; }" />
           </div>
         </section>
+
       </main>
     </div>
   </div>
@@ -113,6 +123,7 @@ const transactions = ref([]);
 const summary = ref({ totalIncome: 0, totalExpense: 0, balance: 0 });
 const activeView = ref('overview');
 const sidebarOpen = ref(false);
+const editingTransaction = ref(null);
 
 const formatIDR = (value) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
@@ -152,6 +163,19 @@ const fetchData = async () => {
   } catch (error) {
     console.error('Failed to fetch data:', error);
   }
+};
+
+const startEdit = (tx) => {
+  editingTransaction.value = tx;
+  // Pastikan section transactions aktif
+  activeView.value = 'transactions';
+  // Scroll ke atas agar form terlihat
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const onSaved = () => {
+  fetchData();
+  editingTransaction.value = null;
 };
 
 onMounted(() => {
