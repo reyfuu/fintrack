@@ -14,3 +14,10 @@ CREATE TABLE IF NOT EXISTS transactions (
 -- Index untuk mempercepat sort dan filter by date
 CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions (date DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions (type);
+
+-- Double Wallet: cash (dompet biasa) vs digital (dompet digital / e-wallet)
+ALTER TABLE transactions
+  ADD COLUMN IF NOT EXISTS wallet VARCHAR(10) NOT NULL DEFAULT 'cash'
+  CHECK (wallet IN ('cash', 'digital'));
+
+CREATE INDEX IF NOT EXISTS idx_transactions_wallet ON transactions (wallet);

@@ -67,11 +67,21 @@
           <span class="text-[0.75rem] text-[#9ca3af]">{{ todayDate }}</span>
         </div>
 
-        <div class="flex items-center">
-          <div class="flex items-center gap-2 bg-[#171a26] border border-[#222533] rounded px-3 py-1.5">
-            <span class="text-[0.75rem] text-[#9ca3af]">Saldo</span>
-            <span class="text-[0.88rem] font-bold" :class="summary.balance >= 0 ? 'text-[#10b981]' : 'text-[#f43f5e]'">
-              {{ formatIDR(Math.abs(summary.balance)) }}
+        <div class="flex items-center gap-2">
+          <!-- Cash wallet badge -->
+          <div class="flex items-center gap-1.5 bg-[#171a26] border border-[#222533] rounded px-2.5 py-1.5">
+            <span class="text-[0.7rem]">💵</span>
+            <span class="text-[0.7rem] text-[#9ca3af] hidden sm:inline">Cash</span>
+            <span class="text-[0.82rem] font-bold" :class="walletSummary.cash.balance >= 0 ? 'text-[#f59e0b]' : 'text-[#f43f5e]'">
+              {{ formatIDR(Math.abs(walletSummary.cash.balance)) }}
+            </span>
+          </div>
+          <!-- Digital wallet badge -->
+          <div class="flex items-center gap-1.5 bg-[#171a26] border border-[#222533] rounded px-2.5 py-1.5">
+            <span class="text-[0.7rem]">💳</span>
+            <span class="text-[0.7rem] text-[#9ca3af] hidden sm:inline">Digital</span>
+            <span class="text-[0.82rem] font-bold" :class="walletSummary.digital.balance >= 0 ? 'text-[#06b6d4]' : 'text-[#f43f5e]'">
+              {{ formatIDR(Math.abs(walletSummary.digital.balance)) }}
             </span>
           </div>
         </div>
@@ -81,7 +91,7 @@
       <main class="flex-1 overflow-y-auto p-4 md:p-8">
         <!-- Overview -->
         <section v-if="activeView === 'overview'" class="animate-fadein">
-          <Dashboard :summary="summary" :transactions="transactions" />
+          <Dashboard :summary="summary" :transactions="transactions" :walletSummary="walletSummary" :monthlySummary="monthlySummary" />
         </section>
 
         <!-- Transactions -->
@@ -121,6 +131,11 @@ import TransactionList from './components/TransactionList.vue';
 
 const transactions = ref([]);
 const summary = ref({ totalIncome: 0, totalExpense: 0, balance: 0 });
+const walletSummary = ref({
+  cash:    { totalIncome: 0, totalExpense: 0, balance: 0 },
+  digital: { totalIncome: 0, totalExpense: 0, balance: 0 }
+});
+const monthlySummary = ref([]);
 const activeView = ref('overview');
 const sidebarOpen = ref(false);
 const editingTransaction = ref(null);
@@ -154,12 +169,16 @@ const todayDate = computed(() => {
 
 const fetchData = async () => {
   try {
-    const [txRes, sumRes] = await Promise.all([
+    const [txRes, sumRes, walletRes, monthlyRes] = await Promise.all([
       fetch('/api/transactions'),
-      fetch('/api/summary')
+      fetch('/api/summary'),
+      fetch('/api/summary/wallets'),
+      fetch('/api/summary/monthly')
     ]);
     transactions.value = await txRes.json();
     summary.value = await sumRes.json();
+    walletSummary.value = await walletRes.json();
+    monthlySummary.value = await monthlyRes.json();
   } catch (error) {
     console.error('Failed to fetch data:', error);
   }

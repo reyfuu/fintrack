@@ -52,6 +52,29 @@
         </div>
       </div>
 
+      <!-- Wallet selector -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[0.72rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">Dompet</label>
+        <div class="flex bg-[#171a26] border border-[#222533] rounded p-0.5 gap-1">
+          <button
+            type="button"
+            class="flex-1 py-2 text-[0.82rem] font-medium border rounded cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5"
+            :class="form.wallet === 'cash'
+              ? 'bg-[rgba(245,158,11,0.08)] text-[#f59e0b] border-[rgba(245,158,11,0.2)] font-semibold'
+              : 'bg-transparent text-[#9ca3af] border-transparent hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
+            @click="form.wallet = 'cash'"
+          ><span class="text-[0.75rem]">💵</span> Cash</button>
+          <button
+            type="button"
+            class="flex-1 py-2 text-[0.82rem] font-medium border rounded cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5"
+            :class="form.wallet === 'digital'
+              ? 'bg-[rgba(6,182,212,0.08)] text-[#06b6d4] border-[rgba(6,182,212,0.2)] font-semibold'
+              : 'bg-transparent text-[#9ca3af] border-transparent hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
+            @click="form.wallet = 'digital'"
+          ><span class="text-[0.75rem]">💳</span> Digital</button>
+        </div>
+      </div>
+
       <!-- Amount -->
       <div class="flex flex-col gap-1.5">
         <label for="amount" class="text-[0.72rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em]">Jumlah</label>
@@ -150,7 +173,8 @@ const defaultForm = () => ({
   amount: '',
   category: '',
   date: new Date().toISOString().split('T')[0],
-  description: ''
+  description: '',
+  wallet: 'cash'
 });
 
 const form = ref(defaultForm());
@@ -163,7 +187,8 @@ watch(() => props.editData, (val) => {
       amount:      val.amount,
       category:    val.category,
       date:        val.date?.split('T')[0] ?? val.date,
-      description: val.description || ''
+      description: val.description || '',
+      wallet:      val.wallet || 'cash'
     };
   } else {
     form.value = defaultForm();

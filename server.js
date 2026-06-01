@@ -17,14 +17,23 @@ app.use(express.json());
 // ─────────────────────────────────────────────
 app.get('/api/transactions', async (req, res) => {
   try {
-    const { month } = req.query;
+    const { month, wallet } = req.query;
     let query = 'SELECT * FROM transactions';
     const params = [];
+    const conditions = [];
 
     if (month) {
-      // Filter by month, e.g. "2025-10"
-      query += ` WHERE TO_CHAR(date, 'YYYY-MM') = $1`;
       params.push(month);
+      conditions.push(`TO_CHAR(date, 'YYYY-MM') = $${params.length}`);
+    }
+
+    if (wallet && ['cash', 'digital'].includes(wallet)) {
+      params.push(wallet);
+      conditions.push(`wallet = $${params.length}`);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
     }
 
     query += ' ORDER BY date DESC, created_at DESC';
@@ -42,7 +51,7 @@ app.get('/api/transactions', async (req, res) => {
 // ─────────────────────────────────────────────
 app.post('/api/transactions', async (req, res) => {
   try {
-    const { type, amount, category, date, description } = req.body;
+    const { type, amount, category, date, description, wallet } = req.body;
 
     if (!type || !amount || !category || !date) {
       return res.status(400).json({ error: 'Field type, amount, category, dan date wajib diisi.' });
@@ -54,11 +63,13 @@ app.post('/api/transactions', async (req, res) => {
       return res.status(400).json({ error: 'Amount harus lebih dari 0.' });
     }
 
+    const walletValue = ['cash', 'digital'].includes(wallet) ? wallet : 'cash';
+
     const result = await pool.query(
-      `INSERT INTO transactions (type, amount, category, date, description)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO transactions (type, amount, category, date, description, wallet)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [type, parseFloat(amount), category.trim(), date, description?.trim() || '']
+      [type, parseFloat(amount), category.trim(), date, description?.trim() || '', walletValue]
     );
 
     res.status(201).json(result.rows[0]);
@@ -74,18 +85,20 @@ app.post('/api/transactions', async (req, res) => {
 app.put('/api/transactions/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { type, amount, category, date, description } = req.body;
+    const { type, amount, category, date, description, wallet } = req.body;
 
     if (!type || !amount || !category || !date) {
       return res.status(400).json({ error: 'Field type, amount, category, dan date wajib diisi.' });
     }
 
+    const walletValue = ['cash', 'digital'].includes(wallet) ? wallet : 'cash';
+
     const result = await pool.query(
       `UPDATE transactions
-       SET type=$1, amount=$2, category=$3, date=$4, description=$5
-       WHERE id=$6
+       SET type=$1, amount=$2, category=$3, date=$4, description=$5, wallet=$6
+       WHERE id=$7
        RETURNING *`,
-      [type, parseFloat(amount), category.trim(), date, description?.trim() || '', id]
+      [type, parseFloat(amount), category.trim(), date, description?.trim() || '', walletValue, id]
     );
 
     if (result.rows.length === 0) {
@@ -127,14 +140,21 @@ app.delete('/api/transactions/:id', async (req, res) => {
 // ─────────────────────────────────────────────
 app.get('/api/summary', async (req, res) => {
   try {
-    const { month } = req.query;
-    let baseWhere = '';
+    const { month, wallet } = req.query;
+    const conditions = [];
     const params = [];
 
     if (month) {
-      baseWhere = `WHERE TO_CHAR(date, 'YYYY-MM') = $1`;
       params.push(month);
+      conditions.push(`TO_CHAR(date, 'YYYY-MM') = $${params.length}`);
     }
+
+    if (wallet && ['cash', 'digital'].includes(wallet)) {
+      params.push(wallet);
+      conditions.push(`wallet = $${params.length}`);
+    }
+
+    const baseWhere = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
 
     const result = await pool.query(
       `SELECT
@@ -152,6 +172,34 @@ app.get('/api/summary', async (req, res) => {
     });
   } catch (err) {
     console.error('GET /api/summary error:', err);
+    res.status(500).json({ error: 'Database error', detail: err.message });
+  }
+});
+
+// ─────────────────────────────────────────────
+//  GET /api/summary/wallets  – saldo per wallet
+// ─────────────────────────────────────────────
+app.get('/api/summary/wallets', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+         wallet,
+         COALESCE(SUM(CASE WHEN type='income'  THEN amount ELSE 0 END), 0) AS "totalIncome",
+         COALESCE(SUM(CASE WHEN type='expense' THEN amount ELSE 0 END), 0) AS "totalExpense"
+       FROM transactions
+       GROUP BY wallet`
+    );
+
+    const summary = { cash: { totalIncome: 0, totalExpense: 0, balance: 0 }, digital: { totalIncome: 0, totalExpense: 0, balance: 0 } };
+    result.rows.forEach(r => {
+      const inc = parseFloat(r.totalIncome);
+      const exp = parseFloat(r.totalExpense);
+      summary[r.wallet] = { totalIncome: inc, totalExpense: exp, balance: inc - exp };
+    });
+
+    res.json(summary);
+  } catch (err) {
+    console.error('GET /api/summary/wallets error:', err);
     res.status(500).json({ error: 'Database error', detail: err.message });
   }
 });

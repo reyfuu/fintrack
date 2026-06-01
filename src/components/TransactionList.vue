@@ -13,32 +13,66 @@
 
     <!-- Toolbar -->
     <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-5">
-      <!-- Filter buttons -->
-      <div class="flex bg-[#171a26] border border-[#222533] rounded p-0.5 gap-1">
-        <button
-          v-for="f in filters"
-          :key="f.id"
-          class="flex-1 sm:flex-none px-3 py-1.5 border border-transparent text-[0.8rem] font-medium font-[inherit] rounded cursor-pointer transition-all duration-150"
-          :class="activeFilter === f.id
-            ? 'bg-[rgba(99,102,241,0.08)] text-[#6366f1] border-[rgba(99,102,241,0.2)] font-semibold'
-            : 'text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
-          @click="activeFilter = f.id"
-        >
-          {{ f.label }}
-        </button>
+      <div class="flex items-center gap-2">
+        <!-- Filter type buttons -->
+        <div class="flex bg-[#171a26] border border-[#222533] rounded p-0.5 gap-1">
+          <button
+            v-for="f in filters"
+            :key="f.id"
+            class="flex-1 sm:flex-none px-3 py-1.5 border border-transparent text-[0.8rem] font-medium font-[inherit] rounded cursor-pointer transition-all duration-150"
+            :class="activeFilter === f.id
+              ? 'bg-[rgba(99,102,241,0.08)] text-[#6366f1] border-[rgba(99,102,241,0.2)] font-semibold'
+              : 'text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
+            @click="activeFilter = f.id"
+          >
+            {{ f.label }}
+          </button>
+        </div>
+
+        <!-- Filter wallet buttons -->
+        <div class="flex bg-[#171a26] border border-[#222533] rounded p-0.5 gap-1">
+          <button
+            v-for="w in walletFilters"
+            :key="w.id"
+            class="flex-1 sm:flex-none px-2.5 py-1.5 border border-transparent text-[0.8rem] font-medium font-[inherit] rounded cursor-pointer transition-all duration-150 flex items-center gap-1"
+            :class="activeWallet === w.id
+              ? w.activeClass
+              : 'text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
+            @click="activeWallet = w.id"
+          >
+            <span v-if="w.icon" class="text-[0.7rem]">{{ w.icon }}</span>
+            {{ w.label }}
+          </button>
+        </div>
       </div>
 
-      <!-- Search -->
-      <div class="relative flex items-center w-full sm:w-60">
-        <div class="absolute left-3 text-[#9ca3af]/70 flex items-center pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+        <!-- Category Filter -->
+        <div class="relative flex items-center w-full sm:w-auto">
+          <select
+            v-model="activeCategory"
+            class="w-full sm:w-40 appearance-none pl-3 pr-7 py-2 bg-[#171a26] border border-[#222533] rounded text-[#f3f4f6] text-[0.8rem] font-[inherit] outline-none transition-all duration-150 focus:border-[rgba(99,102,241,0.5)] cursor-pointer"
+          >
+            <option value="all">Semua Kategori</option>
+            <option v-for="c in availableCategories" :key="c" :value="c">{{ c }}</option>
+          </select>
+          <div class="absolute right-2.5 text-[#9ca3af] pointer-events-none flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </div>
         </div>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Cari transaksi…"
-          class="w-full pl-8 pr-3 py-2 bg-[#171a26] border border-[#222533] rounded text-[#f3f4f6] text-[0.85rem] font-[inherit] outline-none transition-all duration-150 focus:border-[rgba(99,102,241,0.5)] focus:bg-[#11131c] focus:shadow-[0_0_0_1px_rgba(99,102,241,0.15)] placeholder:text-[#9ca3af]/50"
-        />
+
+        <!-- Search -->
+        <div class="relative flex items-center w-full sm:w-60">
+          <div class="absolute left-3 text-[#9ca3af]/70 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Cari transaksi…"
+            class="w-full pl-8 pr-3 py-2 bg-[#171a26] border border-[#222533] rounded text-[#f3f4f6] text-[0.85rem] font-[inherit] outline-none transition-all duration-150 focus:border-[rgba(99,102,241,0.5)] focus:bg-[#11131c] focus:shadow-[0_0_0_1px_rgba(99,102,241,0.15)] placeholder:text-[#9ca3af]/50"
+          />
+        </div>
       </div>
     </div>
 
@@ -80,7 +114,15 @@
               </div>
             </td>
             <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle hidden sm:table-cell">
-              <span class="text-[#9ca3af] bg-[#171a26] border border-[#222533] px-1.5 py-0.5 rounded text-[0.75rem]">{{ tx.category }}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[#9ca3af] bg-[#171a26] border border-[#222533] px-1.5 py-0.5 rounded text-[0.75rem]">{{ tx.category }}</span>
+                <span
+                  class="px-1.5 py-0.5 rounded text-[0.68rem] font-semibold uppercase tracking-[0.04em]"
+                  :class="tx.wallet === 'digital'
+                    ? 'bg-[rgba(6,182,212,0.08)] border border-[rgba(6,182,212,0.2)] text-[#06b6d4]'
+                    : 'bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.2)] text-[#f59e0b]'"
+                >{{ tx.wallet === 'digital' ? '💳' : '💵' }}</span>
+              </div>
             </td>
             <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle hidden md:table-cell">
               <span class="text-[#9ca3af] text-[0.8rem]">{{ formatDate(tx.date) }}</span>
@@ -132,6 +174,8 @@ const props = defineProps({
 const emit = defineEmits(['transaction-deleted', 'edit-transaction']);
 
 const activeFilter = ref('all');
+const activeWallet = ref('all');
+const activeCategory = ref('all');
 const search = ref('');
 
 const filters = [
@@ -140,13 +184,30 @@ const filters = [
   { id: 'expense', label: 'Pengeluaran' },
 ];
 
+const walletFilters = [
+  { id: 'all',     label: 'Semua',    icon: null,  activeClass: 'bg-[rgba(99,102,241,0.08)] text-[#6366f1] border-[rgba(99,102,241,0.2)] font-semibold' },
+  { id: 'cash',    label: 'Cash',     icon: '💵', activeClass: 'bg-[rgba(245,158,11,0.08)] text-[#f59e0b] border-[rgba(245,158,11,0.2)] font-semibold' },
+  { id: 'digital', label: 'Digital',  icon: '💳', activeClass: 'bg-[rgba(6,182,212,0.08)] text-[#06b6d4] border-[rgba(6,182,212,0.2)] font-semibold' },
+];
+
 const formatIDR = (value) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+
+const availableCategories = computed(() => {
+  const cats = new Set(props.transactions.map(t => t.category));
+  return Array.from(cats).sort();
+});
 
 const filtered = computed(() => {
   let list = props.transactions;
   if (activeFilter.value !== 'all') {
     list = list.filter(t => t.type === activeFilter.value);
+  }
+  if (activeWallet.value !== 'all') {
+    list = list.filter(t => t.wallet === activeWallet.value);
+  }
+  if (activeCategory.value !== 'all') {
+    list = list.filter(t => t.category === activeCategory.value);
   }
   if (search.value.trim()) {
     const q = search.value.toLowerCase();
