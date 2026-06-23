@@ -8,6 +8,18 @@
   <!-- TODO: deploy in vercel -->
   <div class="flex flex-col gap-6">
 
+    <!-- Quick action -->
+    <div class="flex justify-end">
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded text-[0.85rem] font-semibold text-white bg-[#6366f1] hover:opacity-90 transition-opacity cursor-pointer border-0"
+        @click="emit('add-transaction')"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Tambah Transaksi
+      </button>
+    </div>
+
     <!-- Wallet Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
       <!-- Cash Wallet -->
@@ -232,6 +244,8 @@ const props = defineProps({
   walletSummary: { type: Object, required: true },
   monthlySummary: { type: Array, required: true }
 });
+
+const emit = defineEmits(['add-transaction']);
 
 const formatIDR = (value) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);

@@ -1,0 +1,58 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fintrack-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-audi}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fintrack_secret}
+      POSTGRES_DB: ${DB_NAME:-fintrack}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - fintrack_pgdata:/var/lib/postgresql/data
+      - ./server/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-audi} -d ${DB_NAME:-fintrack}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fintrack-api
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-fintrack}
+      DB_USER: ${DB_USER:-audi}
+      DB_PASSWORD: ${DB_PASSWORD:-fintrack_secret}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: fintrack-web
+    restart: unless-stopped
+    environment:
+      VITE_API_PROXY: http://api:3000
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      - .:/app
+      - web_node_modules:/app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  fintrack_pgdata:
+  web_node_modules:

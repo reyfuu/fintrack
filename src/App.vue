@@ -20,22 +20,23 @@
 
       <!-- Nav -->
       <nav class="flex-1 px-4 py-6 flex flex-col gap-1.5">
-        <button
+        <RouterLink
           v-for="item in navItems"
-          :key="item.id"
-          class="flex items-center gap-3 px-4 py-2.5 rounded-md text-[0.88rem] font-medium text-left w-full transition-all duration-150 cursor-pointer border"
-          :class="activeView === item.id
+          :key="item.name"
+          :to="{ name: item.name }"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-md text-[0.88rem] font-medium text-left w-full transition-all duration-150 cursor-pointer border no-underline"
+          :class="route.name === item.name
             ? 'bg-[rgba(99,102,241,0.08)] text-[#f3f4f6] border-[rgba(99,102,241,0.2)]'
             : 'text-[#9ca3af] border-transparent hover:bg-[#171a26] hover:text-[#f3f4f6]'"
-          @click="activeView = item.id; sidebarOpen = false"
+          @click="sidebarOpen = false"
         >
           <span
             class="flex items-center shrink-0 transition-colors duration-150"
-            :class="activeView === item.id ? 'text-[#6366f1]' : 'text-[#9ca3af]'"
+            :class="route.name === item.name ? 'text-[#6366f1]' : 'text-[#9ca3af]'"
             v-html="item.icon"
           />
           <span>{{ item.label }}</span>
-        </button>
+        </RouterLink>
       </nav>
 
       <!-- User footer -->
@@ -54,7 +55,6 @@
     <div class="flex-1 flex flex-col overflow-hidden min-w-0">
       <!-- Topbar -->
       <header class="h-16 bg-[#11131c] border-b border-[#222533] flex items-center gap-4 px-4 md:px-8 shrink-0">
-        <!-- Hamburger (mobile only) -->
         <button
           class="md:hidden flex items-center justify-center p-1.5 rounded text-[#9ca3af] hover:text-[#f3f4f6] transition-colors"
           @click="sidebarOpen = !sidebarOpen"
@@ -68,20 +68,27 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <!-- Cash wallet badge -->
+          <RouterLink
+            :to="{ name: 'add' }"
+            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-[0.8rem] font-semibold text-white bg-[#6366f1] hover:opacity-90 transition-opacity no-underline"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Tambah
+          </RouterLink>
+
           <div class="flex items-center gap-1.5 bg-[#171a26] border border-[#222533] rounded px-2.5 py-1.5">
             <span class="text-[0.7rem]">💵</span>
             <span class="text-[0.7rem] text-[#9ca3af] hidden sm:inline">Cash</span>
-            <span class="text-[0.82rem] font-bold" :class="walletSummary.cash.balance >= 0 ? 'text-[#f59e0b]' : 'text-[#f43f5e]'">
-              {{ formatIDR(Math.abs(walletSummary.cash.balance)) }}
+            <span class="text-[0.82rem] font-bold" :class="fintrack.walletSummary.value.cash.balance >= 0 ? 'text-[#f59e0b]' : 'text-[#f43f5e]'">
+              {{ formatIDR(Math.abs(fintrack.walletSummary.value.cash.balance)) }}
             </span>
           </div>
-          <!-- Digital wallet badge -->
+
           <div class="flex items-center gap-1.5 bg-[#171a26] border border-[#222533] rounded px-2.5 py-1.5">
             <span class="text-[0.7rem]">💳</span>
             <span class="text-[0.7rem] text-[#9ca3af] hidden sm:inline">Digital</span>
-            <span class="text-[0.82rem] font-bold" :class="walletSummary.digital.balance >= 0 ? 'text-[#06b6d4]' : 'text-[#f43f5e]'">
-              {{ formatIDR(Math.abs(walletSummary.digital.balance)) }}
+            <span class="text-[0.82rem] font-bold" :class="fintrack.walletSummary.value.digital.balance >= 0 ? 'text-[#06b6d4]' : 'text-[#f43f5e]'">
+              {{ formatIDR(Math.abs(fintrack.walletSummary.value.digital.balance)) }}
             </span>
           </div>
         </div>
@@ -89,117 +96,56 @@
 
       <!-- Page content -->
       <main class="flex-1 overflow-y-auto p-4 md:p-8">
-        <!-- Overview -->
-        <section v-if="activeView === 'overview'" class="animate-fadein">
-          <Dashboard :summary="summary" :transactions="transactions" :walletSummary="walletSummary" :monthlySummary="monthlySummary" />
-        </section>
-
-        <!-- Transactions -->
-        <section v-else-if="activeView === 'transactions'" class="animate-fadein">
-          <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start">
-            <TransactionForm
-              :editData="editingTransaction"
-              @transaction-added="onSaved"
-              @cancel-edit="editingTransaction = null"
-            />
-            <TransactionList
-              :transactions="transactions"
-              :editingId="editingTransaction?.id"
-              @transaction-deleted="fetchData"
-              @edit-transaction="startEdit"
-            />
-          </div>
-        </section>
-
-        <!-- Add shortcut -->
-        <section v-else-if="activeView === 'add'" class="animate-fadein flex justify-center">
-          <div class="w-full max-w-[480px]">
-            <TransactionForm @transaction-added="() => { fetchData(); activeView = 'transactions'; }" />
-          </div>
-        </section>
-
+        <RouterView />
       </main>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from 'vue';
-import Dashboard from './components/Dashboard.vue';
-import TransactionForm from './components/TransactionForm.vue';
-import TransactionList from './components/TransactionList.vue';
+<script setup lang="ts">
+import { ref, computed, onMounted, provide } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { fintrackKey, useFintrackProvider } from './composables/useFintrack'
 
-const transactions = ref([]);
-const summary = ref({ totalIncome: 0, totalExpense: 0, balance: 0 });
-const walletSummary = ref({
-  cash:    { totalIncome: 0, totalExpense: 0, balance: 0 },
-  digital: { totalIncome: 0, totalExpense: 0, balance: 0 }
-});
-const monthlySummary = ref([]);
-const activeView = ref('overview');
-const sidebarOpen = ref(false);
-const editingTransaction = ref(null);
+const route = useRoute()
+const sidebarOpen = ref(false)
+const fintrack = useFintrackProvider()
 
-const formatIDR = (value) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+provide(fintrackKey, fintrack)
+
+const formatIDR = (value: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value)
 
 const navItems = [
   {
-    id: 'overview',
+    name: 'overview',
     label: 'Overview',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>`,
   },
   {
-    id: 'transactions',
+    name: 'transactions',
     label: 'Transactions',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`,
   },
   {
-    id: 'add',
+    name: 'add',
     label: 'Add Transaction',
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>`
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>`,
   },
-];
+]
 
-const currentNavLabel = computed(() => navItems.find(n => n.id === activeView.value)?.label || '');
+const currentNavLabel = computed(() => {
+  const item = navItems.find(n => n.name === route.name)
+  return item?.label || (route.meta.title as string) || ''
+})
 
-const todayDate = computed(() => {
-  return new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-});
-
-const fetchData = async () => {
-  try {
-    const [txRes, sumRes, walletRes, monthlyRes] = await Promise.all([
-      fetch('/api/transactions'),
-      fetch('/api/summary'),
-      fetch('/api/summary/wallets'),
-      fetch('/api/summary/monthly')
-    ]);
-    transactions.value = await txRes.json();
-    summary.value = await sumRes.json();
-    walletSummary.value = await walletRes.json();
-    monthlySummary.value = await monthlyRes.json();
-  } catch (error) {
-    console.error('Failed to fetch data:', error);
-  }
-};
-
-const startEdit = (tx) => {
-  editingTransaction.value = tx;
-  // Pastikan section transactions aktif
-  activeView.value = 'transactions';
-  // Scroll ke atas agar form terlihat
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const onSaved = () => {
-  fetchData();
-  editingTransaction.value = null;
-};
+const todayDate = computed(() =>
+  new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+)
 
 onMounted(() => {
-  fetchData();
-});
+  fintrack.fetchData()
+})
 </script>
 
 <style>
@@ -209,7 +155,6 @@ onMounted(() => {
 }
 .animate-fadein { animation: fadein 0.15s ease-out; }
 
-/* Shared card utility */
 .card {
   background: #11131c;
   border: 1px solid #222533;
