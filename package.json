@@ -16,6 +16,9 @@
     "docker:logs": "docker compose logs -f"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.0",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "chart.js": "^4.5.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -26,6 +29,7 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.4.1",
     "@tailwindcss/vite": "^4.3.0",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^24.12.2",
