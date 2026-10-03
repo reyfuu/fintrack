@@ -40,7 +40,8 @@
               : 'text-[#9ca3af] hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
             @click="activeWallet = w.id"
           >
-            <span v-if="w.icon" class="text-[0.7rem]">{{ w.icon }}</span>
+            <IconCash v-if="w.id === 'cash'" :size="13" />
+            <IconCard v-else-if="w.id === 'digital'" :size="13" />
             {{ w.label }}
           </button>
         </div>
@@ -121,7 +122,10 @@
                   :class="tx.wallet === 'digital'
                     ? 'bg-[rgba(6,182,212,0.08)] border border-[rgba(6,182,212,0.2)] text-[#06b6d4]'
                     : 'bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.2)] text-[#f59e0b]'"
-                >{{ tx.wallet === 'digital' ? '💳' : '💵' }}</span>
+                >
+                  <IconCard v-if="tx.wallet === 'digital'" :size="12" />
+                  <IconCash v-else :size="12" />
+                </span>
               </div>
             </td>
             <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle hidden md:table-cell">
@@ -185,13 +189,10 @@ const filters = [
 ];
 
 const walletFilters = [
-  { id: 'all',     label: 'Semua',    icon: null,  activeClass: 'bg-[rgba(99,102,241,0.08)] text-[#6366f1] border-[rgba(99,102,241,0.2)] font-semibold' },
-  { id: 'cash',    label: 'Cash',     icon: '💵', activeClass: 'bg-[rgba(245,158,11,0.08)] text-[#f59e0b] border-[rgba(245,158,11,0.2)] font-semibold' },
-  { id: 'digital', label: 'Digital',  icon: '💳', activeClass: 'bg-[rgba(6,182,212,0.08)] text-[#06b6d4] border-[rgba(6,182,212,0.2)] font-semibold' },
+  { id: 'all',     label: 'Semua',    activeClass: 'bg-[rgba(99,102,241,0.08)] text-[#6366f1] border-[rgba(99,102,241,0.2)] font-semibold' },
+  { id: 'cash',    label: 'Cash',     activeClass: 'bg-[rgba(245,158,11,0.08)] text-[#f59e0b] border-[rgba(245,158,11,0.2)] font-semibold' },
+  { id: 'digital', label: 'Digital',  activeClass: 'bg-[rgba(6,182,212,0.08)] text-[#06b6d4] border-[rgba(6,182,212,0.2)] font-semibold' },
 ];
-
-const formatIDR = (value) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 
 const availableCategories = computed(() => {
   const cats = new Set(props.transactions.map(t => t.category));
@@ -227,6 +228,10 @@ const remove = async (id) => {
   if (!confirm('Hapus permanen catatan transaksi ini?')) return;
   try {
     const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+    if (res.status === 401) {
+      await navigateTo('/login');
+      return;
+    }
     if (res.ok) emit('transaction-deleted');
   } catch (e) {
     console.error('Delete failed:', e);

@@ -1,0 +1,39 @@
+/* The Inter @import was removed: @nuxt/fonts picks up the font-family below,
+   self-hosts the faces at build time and injects preload hints, instead of
+   render-blocking on a Google Fonts round trip. */
+@import "tailwindcss";
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #090a0f;
+  color: #f3f4f6;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nuxt's root element is #__nuxt, not #app. The old selector would silently
+   stop matching and the fixed-viewport shell would degrade to a scrolling page. */
+#__nuxt {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Moved out of App.vue's non-scoped <style>: a global stylesheet in disguise,
+   and .card is consumed by all three feature components, none of which own it. */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadein { animation: fadein 0.15s ease-out; }
+
+.card {
+  background: #11131c;
+  border: 1px solid #222533;
+  border-radius: 8px;
+  padding: 24px;
+}

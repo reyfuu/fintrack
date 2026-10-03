@@ -1,13 +1,18 @@
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start animate-fadein">
+    <!--
+      ?? undefined: TransactionForm declares editData with `type: Object`, so its
+      external prop type is Object | undefined rather than Object | null. Its
+      watch treats both as "not editing".
+    -->
     <TransactionForm
-      :editData="fintrack.editingTransaction.value"
+      :edit-data="fintrack.editingTransaction.value ?? undefined"
       @transaction-added="fintrack.onSaved"
       @cancel-edit="fintrack.clearEdit()"
     />
     <TransactionList
       :transactions="fintrack.transactions.value"
-      :editingId="fintrack.editingTransaction.value?.id"
+      :editing-id="fintrack.editingTransaction.value?.id"
       @transaction-deleted="fintrack.fetchData"
       @edit-transaction="fintrack.startEdit"
     />
@@ -15,10 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
-import TransactionForm from '../components/TransactionForm.vue'
-import TransactionList from '../components/TransactionList.vue'
-import { fintrackKey } from '../composables/useFintrack'
-
-const fintrack = inject(fintrackKey)!
+useHead({ title: 'Transactions' })
+const fintrack = useFintrack()
 </script>

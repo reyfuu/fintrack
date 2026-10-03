@@ -27,7 +27,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-9 h-9 rounded flex items-center justify-center bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.2)]">
-              <span class="text-base">💵</span>
+              <IconCash :size="18" class="text-[#f59e0b]" />
             </div>
             <div>
               <div class="text-[0.88rem] font-semibold text-[#f3f4f6]">Dompet Biasa</div>
@@ -58,7 +58,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
             <div class="w-9 h-9 rounded flex items-center justify-center bg-[rgba(6,182,212,0.08)] border border-[rgba(6,182,212,0.2)]">
-              <span class="text-base">💳</span>
+              <IconCard :size="18" class="text-[#06b6d4]" />
             </div>
             <div>
               <div class="text-[0.88rem] font-semibold text-[#f3f4f6]">Dompet Digital</div>
@@ -246,9 +246,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['add-transaction']);
-
-const formatIDR = (value) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 
 const kpiCards = computed(() => [
   {

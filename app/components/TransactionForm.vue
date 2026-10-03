@@ -63,7 +63,7 @@
               ? 'bg-[rgba(245,158,11,0.08)] text-[#f59e0b] border-[rgba(245,158,11,0.2)] font-semibold'
               : 'bg-transparent text-[#9ca3af] border-transparent hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
             @click="form.wallet = 'cash'"
-          ><span class="text-[0.75rem]">💵</span> Cash</button>
+          ><IconCash :size="14" /> Cash</button>
           <button
             type="button"
             class="flex-1 py-2 text-[0.82rem] font-medium border rounded cursor-pointer transition-all duration-150 flex items-center justify-center gap-1.5"
@@ -71,7 +71,7 @@
               ? 'bg-[rgba(6,182,212,0.08)] text-[#06b6d4] border-[rgba(6,182,212,0.2)] font-semibold'
               : 'bg-transparent text-[#9ca3af] border-transparent hover:text-[#f3f4f6] hover:bg-white/[0.02]'"
             @click="form.wallet = 'digital'"
-          ><span class="text-[0.75rem]">💳</span> Digital</button>
+          ><IconCard :size="14" /> Digital</button>
         </div>
       </div>
 
@@ -217,6 +217,13 @@ const handleSubmit = async () => {
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(form.value)
     });
+
+    // The session cookie is httpOnly, so a 401 from the API is how the client
+    // learns the passcode session expired.
+    if (res.status === 401) {
+      await navigateTo('/login');
+      return;
+    }
 
     const data = await res.json();
 

@@ -1,3 +1,5 @@
 <template>
-  <div>scaffold</div>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

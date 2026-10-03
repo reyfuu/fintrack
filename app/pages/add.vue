@@ -7,11 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
-import TransactionForm from '../components/TransactionForm.vue'
-import { fintrackKey } from '../composables/useFintrack'
-
-const fintrack = inject(fintrackKey)!
+useHead({ title: 'Add Transaction' })
+const fintrack = useFintrack()
 
 const onAdded = async () => {
   await fintrack.fetchData()
