@@ -10,10 +10,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build",
-    "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f"
+    "type-check": "vue-tsc --build"
   },
   "dependencies": {
     "chart.js": "^4.5.1",
