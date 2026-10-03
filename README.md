@@ -12,6 +12,7 @@ pemasukan serta pengeluaran dalam Rupiah, dengan dua dompet (cash dan digital).
 - **Tambah / Edit Transaksi** — tipe, jumlah, kategori, tanggal, dompet, catatan
 - **Riwayat Transaksi** — filter tipe/dompet/kategori plus pencarian teks
 - **Dua Dompet** — `cash` (tunai) dan `digital` (e-wallet / QRIS)
+- **Tema terang & gelap** — mengikuti preferensi sistem, bisa diubah lewat tombol di topbar dan tersimpan di browser
 - **Responsif** — sidebar menjadi drawer di layar kecil
 
 ---
@@ -21,7 +22,7 @@ pemasukan serta pengeluaran dalam Rupiah, dengan dua dompet (cash dan digital).
 | Layer | Teknologi |
 |---|---|
 | Framework | Nuxt 4 (Vue 3, SPA mode — `ssr: false`) |
-| Styling | Tailwind CSS v4 (`@tailwindcss/vite`) |
+| Styling | Tailwind CSS v4 (`@tailwindcss/vite`), token-based tema terang/gelap |
 | Charts | Chart.js via vue-chartjs |
 | Font | Inter, self-hosted oleh `@nuxt/fonts` |
 | API | Nitro route handlers (`server/api/`) |
@@ -56,8 +57,6 @@ npm run dev              # http://localhost:3000
 |---|---|
 | `DATABASE_URL` | Connection string Neon **pooled** (host `-pooler`). Untuk lokal, arahkan ke branch `dev`, bukan `main`. |
 | `DATABASE_URL_UNPOOLED` | Connection string langsung, hanya untuk DDL (`npm run db:schema`). |
-| `APP_PASSCODE` | Passcode untuk masuk. Tidak punya default — jika kosong, server menolak semua request. |
-| `AUTH_SECRET` | Kunci HMAC untuk menandatangani cookie sesi. |
 
 Membuat skema di database kosong:
 
@@ -75,28 +74,34 @@ npm run db:schema        # menjalankan db/schema.sql lewat DATABASE_URL_UNPOOLED
 
 ---
 
-## Autentikasi
+## Akses
 
-Aplikasi ini **single-tenant**: tidak ada tabel `users`, tidak ada kolom
-`user_id`, dan semua data dimiliki bersama. Yang ada adalah **satu passcode
-bersama** (`APP_PASSCODE`).
+Aplikasi ini **tidak punya autentikasi**. Tidak ada tabel `users`, tidak ada
+kolom `user_id`, dan tidak ada passcode — semua endpoint terbuka.
 
-Cara kerjanya: `POST /api/auth/login` membandingkan passcode secara
-constant-time, lalu memasang cookie httpOnly berisi token
-`<issuedAt>.<nonce>.<hmac>` yang ditandatangani dengan `AUTH_SECRET` dan berlaku
-30 hari. Middleware `server/middleware/auth.ts` menolak setiap request ke
-`/api/**` tanpa cookie yang sah.
-
-**Batasannya, supaya jelas:** tidak ada rate limiting — hanya jeda 600 ms pada
-setiap login gagal. Passcode pendek karenanya bisa di-brute-force. Pakai
-passcode yang panjang, dan perlakukan ini sebagai pintu sederhana, bukan sistem
-autentikasi penuh. Multi-user adalah pekerjaan berikutnya.
+Selama hanya berjalan di `localhost` itu tidak masalah. **Begitu di-deploy ke
+Vercel, siapa pun yang tahu URL-nya bisa membaca, menambah, mengubah, dan
+menghapus seluruh catatan keuangan.** Kalau itu bukan yang diinginkan, pilihan
+paling cepat adalah menyalakan Vercel Deployment Protection di pengaturan
+project; solusi sebenarnya adalah menambahkan autentikasi.
 
 ---
 
-## API
+## Tema
 
-Semua endpoint memerlukan cookie sesi kecuali `/api/auth/*`.
+Token warna didefinisikan sekali di `app/assets/css/main.css` (`@theme static`)
+dan di-override di bawah `:root[data-theme="light"]`. Utility Tailwind seperti
+`bg-surface` atau `text-muted` dikompilasi menjadi `var(--color-*)`, jadi ganti
+tema cukup menukar variabel — bukan menyapu ulang markup.
+
+Aksen punya nilai berbeda per tema dengan sengaja: `#10b981` di atas putih hanya
+2.3:1, terlalu rendah untuk teks, sehingga versi terang memakai shade 600/700.
+
+Chart.js melukis ke canvas dan tidak bisa membaca `var()`, jadi
+`app/composables/useThemeColors.ts` membaca token hasil komputasi dan
+mengembalikannya sebagai string, lalu dihitung ulang setiap tema berubah.
+
+## API
 
 | Method | Endpoint | Keterangan |
 |---|---|---|
@@ -107,9 +112,6 @@ Semua endpoint memerlukan cookie sesi kecuali `/api/auth/*`.
 | `GET` | `/api/summary` | Opsional `?month`, `?wallet` |
 | `GET` | `/api/summary/wallets` | Saldo per dompet |
 | `GET` | `/api/summary/monthly` | 12 bulan terakhir |
-| `POST` | `/api/auth/login` | Body `{ passcode }` |
-| `POST` | `/api/auth/logout` | Menghapus cookie |
-| `GET` | `/api/auth/session` | `{ authenticated: boolean }` |
 
 Error yang diharapkan (400/404) memakai bentuk `{ "error": "pesan" }`. Error tak
 terduga menghasilkan 500 generik; penyebab aslinya hanya muncul di log server.
@@ -132,9 +134,8 @@ Zero-config — tidak perlu `vercel.json`.
 3. **Functions Region: Singapore (`sin1`)** — database Neon berada di
    `ap-southeast-1`. Region default `iad1` menambah ~200 ms per request, dan
    dashboard memanggil 4 endpoint sekaligus saat dimuat.
-4. Set `DATABASE_URL`, `APP_PASSCODE`, `AUTH_SECRET` untuk Production, Preview,
-   dan Development. Arahkan Preview ke branch Neon `dev` agar preview deploy
-   tidak menyentuh data asli.
+4. Set `DATABASE_URL` untuk Production, Preview, dan Development. Arahkan
+   Preview ke branch Neon `dev` agar preview deploy tidak menyentuh data asli.
 
 ---
 
@@ -143,8 +144,7 @@ Zero-config — tidak perlu `vercel.json`.
 ```
 app/                 Vue: app.vue, layouts/, pages/, components/, composables/
 server/api/          Nitro route handlers
-server/middleware/   Gerbang passcode
-server/utils/        Koneksi database, proyeksi kolom, helper auth
+server/utils/        Koneksi database dan proyeksi kolom
 shared/              Tipe dan util yang dipakai app maupun server
 db/schema.sql        Skema database
 ```
@@ -153,7 +153,6 @@ db/schema.sql        Skema database
 
 ## Yang belum ada
 
-- Autentikasi multi-user (tabel `users`, `user_id` pada transaksi)
-- Rate limiting pada endpoint login
+- Autentikasi (saat ini tidak ada sama sekali — lihat bagian Akses)
 - Export data (CSV / PDF)
 - Anggaran dan target per kategori

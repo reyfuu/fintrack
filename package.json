@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@nuxt/fonts": "^0.14.0",
+    "@nuxtjs/color-mode": "^4.0.1",
     "@tailwindcss/vite": "^4.3.0",
     "@types/node": "^24.12.2",
     "@types/pg": "^8.15.6",

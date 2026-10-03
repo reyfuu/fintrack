@@ -41,12 +41,6 @@ export function useFintrack() {
       walletSummary.value = wallets
       monthlySummary.value = monthly
     } catch (error) {
-      // The session cookie is httpOnly, so the API's 401 is how the client
-      // learns it needs to re-authenticate.
-      if ((error as { statusCode?: number }).statusCode === 401) {
-        await navigateTo('/login')
-        return
-      }
       console.error('Failed to fetch data:', error)
     }
   }

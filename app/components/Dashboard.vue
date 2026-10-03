@@ -12,7 +12,7 @@
     <div class="flex justify-end">
       <button
         type="button"
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded text-[0.85rem] font-semibold text-white bg-[#6366f1] hover:opacity-90 transition-opacity cursor-pointer border-0"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded text-[0.85rem] font-semibold text-white bg-brand hover:opacity-90 transition-opacity cursor-pointer border-0"
         @click="emit('add-transaction')"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -23,63 +23,63 @@
     <!-- Wallet Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
       <!-- Cash Wallet -->
-      <div class="card flex flex-col gap-3 transition-all duration-150 hover:border-[rgba(245,158,11,0.3)] hover:bg-[#171a26]">
+      <div class="card flex flex-col gap-3 transition-all duration-150 hover:border-cash/30 hover:bg-elevated">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded flex items-center justify-center bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.2)]">
-              <IconCash :size="18" class="text-[#f59e0b]" />
+            <div class="w-9 h-9 rounded flex items-center justify-center bg-cash/8 border border-cash/20">
+              <IconCash :size="18" class="text-cash" />
             </div>
             <div>
-              <div class="text-[0.88rem] font-semibold text-[#f3f4f6]">Dompet Biasa</div>
-              <div class="text-[0.72rem] text-[#9ca3af]">Cash / Tunai</div>
+              <div class="text-[0.88rem] font-semibold text-fg">Dompet Biasa</div>
+              <div class="text-[0.72rem] text-muted">Cash / Tunai</div>
             </div>
           </div>
-          <span class="text-[0.68rem] uppercase tracking-[0.08em] font-semibold bg-[rgba(245,158,11,0.08)] border border-[rgba(245,158,11,0.2)] text-[#f59e0b] px-1.5 py-0.5 rounded">Cash</span>
+          <span class="text-[0.68rem] uppercase tracking-[0.08em] font-semibold bg-cash/8 border border-cash/20 text-cash px-1.5 py-0.5 rounded">Cash</span>
         </div>
-        <div class="text-2xl font-bold tracking-tight tabular-nums" :class="walletSummary.cash.balance >= 0 ? 'text-[#f59e0b]' : 'text-[#f43f5e]'">
+        <div class="text-2xl font-bold tracking-tight tabular-nums" :class="walletSummary.cash.balance >= 0 ? 'text-cash' : 'text-expense'">
           {{ formatIDR(walletSummary.cash.balance) }}
         </div>
         <div class="flex gap-4 text-[0.75rem]">
           <div class="flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
-            <span class="text-[#9ca3af]">Masuk</span>
-            <span class="font-medium text-[#10b981]">{{ formatIDR(walletSummary.cash.totalIncome) }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-income"></span>
+            <span class="text-muted">Masuk</span>
+            <span class="font-medium text-income">{{ formatIDR(walletSummary.cash.totalIncome) }}</span>
           </div>
           <div class="flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#f43f5e]"></span>
-            <span class="text-[#9ca3af]">Keluar</span>
-            <span class="font-medium text-[#f43f5e]">{{ formatIDR(walletSummary.cash.totalExpense) }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-expense"></span>
+            <span class="text-muted">Keluar</span>
+            <span class="font-medium text-expense">{{ formatIDR(walletSummary.cash.totalExpense) }}</span>
           </div>
         </div>
       </div>
 
       <!-- Digital Wallet -->
-      <div class="card flex flex-col gap-3 transition-all duration-150 hover:border-[rgba(6,182,212,0.3)] hover:bg-[#171a26]">
+      <div class="card flex flex-col gap-3 transition-all duration-150 hover:border-digital/30 hover:bg-elevated">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded flex items-center justify-center bg-[rgba(6,182,212,0.08)] border border-[rgba(6,182,212,0.2)]">
-              <IconCard :size="18" class="text-[#06b6d4]" />
+            <div class="w-9 h-9 rounded flex items-center justify-center bg-digital/8 border border-digital/20">
+              <IconCard :size="18" class="text-digital" />
             </div>
             <div>
-              <div class="text-[0.88rem] font-semibold text-[#f3f4f6]">Dompet Digital</div>
-              <div class="text-[0.72rem] text-[#9ca3af]">E-Wallet / QRIS</div>
+              <div class="text-[0.88rem] font-semibold text-fg">Dompet Digital</div>
+              <div class="text-[0.72rem] text-muted">E-Wallet / QRIS</div>
             </div>
           </div>
-          <span class="text-[0.68rem] uppercase tracking-[0.08em] font-semibold bg-[rgba(6,182,212,0.08)] border border-[rgba(6,182,212,0.2)] text-[#06b6d4] px-1.5 py-0.5 rounded">Digital</span>
+          <span class="text-[0.68rem] uppercase tracking-[0.08em] font-semibold bg-digital/8 border border-digital/20 text-digital px-1.5 py-0.5 rounded">Digital</span>
         </div>
-        <div class="text-2xl font-bold tracking-tight tabular-nums" :class="walletSummary.digital.balance >= 0 ? 'text-[#06b6d4]' : 'text-[#f43f5e]'">
+        <div class="text-2xl font-bold tracking-tight tabular-nums" :class="walletSummary.digital.balance >= 0 ? 'text-digital' : 'text-expense'">
           {{ formatIDR(walletSummary.digital.balance) }}
         </div>
         <div class="flex gap-4 text-[0.75rem]">
           <div class="flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
-            <span class="text-[#9ca3af]">Masuk</span>
-            <span class="font-medium text-[#10b981]">{{ formatIDR(walletSummary.digital.totalIncome) }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-income"></span>
+            <span class="text-muted">Masuk</span>
+            <span class="font-medium text-income">{{ formatIDR(walletSummary.digital.totalIncome) }}</span>
           </div>
           <div class="flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#f43f5e]"></span>
-            <span class="text-[#9ca3af]">Keluar</span>
-            <span class="font-medium text-[#f43f5e]">{{ formatIDR(walletSummary.digital.totalExpense) }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-expense"></span>
+            <span class="text-muted">Keluar</span>
+            <span class="font-medium text-expense">{{ formatIDR(walletSummary.digital.totalExpense) }}</span>
           </div>
         </div>
       </div>
@@ -89,13 +89,13 @@
       <div
         v-for="kpi in kpiCards"
         :key="kpi.label"
-        class="card flex justify-between items-center transition-all duration-150 hover:border-white/15 hover:bg-[#171a26]"
+        class="card flex justify-between items-center transition-all duration-150 hover:border-fg/20 hover:bg-elevated"
       >
         <div class="flex flex-col gap-1">
-          <span class="text-[0.72rem] text-[#9ca3af] uppercase tracking-[0.08em] font-semibold">{{ kpi.label }}</span>
+          <span class="text-[0.72rem] text-muted uppercase tracking-[0.08em] font-semibold">{{ kpi.label }}</span>
           <div
             class="text-2xl font-bold tracking-tight tabular-nums"
-            :class="kpi.className === 'income' ? 'text-[#10b981]' : kpi.className === 'expense' ? 'text-[#f43f5e]' : 'text-[#f3f4f6]'"
+            :class="kpi.className === 'income' ? 'text-income' : kpi.className === 'expense' ? 'text-expense' : 'text-fg'"
           >
             {{ formatIDR(kpi.value) }}
           </div>
@@ -103,10 +103,10 @@
         <div
           class="w-9 h-9 rounded flex items-center justify-center shrink-0"
           :class="kpi.className === 'income'
-            ? 'bg-[rgba(16,185,129,0.08)] border border-[rgba(16,185,129,0.2)] text-[#10b981]'
+            ? 'bg-income/8 border border-income/20 text-income'
             : kpi.className === 'expense'
-              ? 'bg-[rgba(244,63,94,0.08)] border border-[rgba(244,63,94,0.2)] text-[#f43f5e]'
-              : 'bg-[#171a26] border border-[#222533] text-[#9ca3af]'"
+              ? 'bg-expense/8 border border-expense/20 text-expense'
+              : 'bg-elevated border border-border text-muted'"
         >
           <span v-html="kpi.icon" />
         </div>
@@ -117,12 +117,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="card flex flex-col">
         <div class="mb-4">
-          <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">Laporan Bulanan</h3>
-          <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">Pemasukan vs Pengeluaran (12 Bulan)</p>
+          <h3 class="m-0 text-[0.95rem] font-semibold text-fg">Laporan Bulanan</h3>
+          <p class="mt-0.5 mb-0 text-[0.75rem] text-muted">Pemasukan vs Pengeluaran (12 Bulan)</p>
         </div>
         <div class="relative h-[260px] w-full">
           <Bar v-if="props.monthlySummary.length > 0" :data="barChartData" :options="barChartOptions" />
-          <div v-else class="h-full flex items-center justify-center text-[#9ca3af] text-[0.82rem]">
+          <div v-else class="h-full flex items-center justify-center text-muted text-[0.82rem]">
             Belum ada data bulanan.
           </div>
         </div>
@@ -130,12 +130,12 @@
       
       <div class="card flex flex-col">
         <div class="mb-4">
-          <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">Distribusi Kategori</h3>
-          <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">Persentase pengeluaran berdasarkan kategori</p>
+          <h3 class="m-0 text-[0.95rem] font-semibold text-fg">Distribusi Kategori</h3>
+          <p class="mt-0.5 mb-0 text-[0.75rem] text-muted">Persentase pengeluaran berdasarkan kategori</p>
         </div>
         <div class="relative h-[260px] w-full flex items-center justify-center">
           <Doughnut v-if="categoryBreakdown.length > 0" :data="doughnutChartData" :options="doughnutChartOptions" />
-          <div v-else class="h-full flex items-center justify-center text-[#9ca3af] text-[0.82rem]">
+          <div v-else class="h-full flex items-center justify-center text-muted text-[0.82rem]">
             Belum ada data pengeluaran.
           </div>
         </div>
@@ -148,15 +148,15 @@
       <div class="card flex flex-col">
         <div class="flex justify-between items-start mb-5">
           <div>
-            <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">Aktivitas Terkini</h3>
-            <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">Transaksi keuangan bulan ini</p>
+            <h3 class="m-0 text-[0.95rem] font-semibold text-fg">Aktivitas Terkini</h3>
+            <p class="mt-0.5 mb-0 text-[0.75rem] text-muted">Transaksi keuangan bulan ini</p>
           </div>
-          <span class="text-[0.72rem] bg-[#171a26] border border-[#222533] text-[#9ca3af] px-2 py-0.5 rounded font-medium">
+          <span class="text-[0.72rem] bg-elevated border border-border text-muted px-2 py-0.5 rounded font-medium">
             {{ transactions.length }} total
           </span>
         </div>
 
-        <div v-if="recentTx.length === 0" class="flex flex-col items-center justify-center py-12 text-[#9ca3af] text-[0.82rem] gap-2">
+        <div v-if="recentTx.length === 0" class="flex flex-col items-center justify-center py-12 text-muted text-[0.82rem] gap-2">
           <div class="opacity-50">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           </div>
@@ -167,28 +167,28 @@
           <table class="w-full border-collapse text-left">
             <thead>
               <tr>
-                <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533]">Transaksi</th>
-                <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] hidden sm:table-cell">Kategori</th>
-                <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] hidden md:table-cell">Tanggal</th>
-                <th class="text-[0.7rem] font-semibold text-[#9ca3af] uppercase tracking-[0.08em] px-3 py-2.5 border-b border-[#222533] text-right">Jumlah</th>
+                <th class="text-[0.7rem] font-semibold text-muted uppercase tracking-[0.08em] px-3 py-2.5 border-b border-border">Transaksi</th>
+                <th class="text-[0.7rem] font-semibold text-muted uppercase tracking-[0.08em] px-3 py-2.5 border-b border-border hidden sm:table-cell">Kategori</th>
+                <th class="text-[0.7rem] font-semibold text-muted uppercase tracking-[0.08em] px-3 py-2.5 border-b border-border hidden md:table-cell">Tanggal</th>
+                <th class="text-[0.7rem] font-semibold text-muted uppercase tracking-[0.08em] px-3 py-2.5 border-b border-border text-right">Jumlah</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="tx in recentTx" :key="tx.id" class="group">
-                <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] last:border-0 align-middle">
+                <td class="px-3 py-3 text-[0.85rem] border-b border-fg/[0.07] last:border-0 align-middle">
                   <div class="flex items-center gap-2.5">
-                    <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="tx.type === 'income' ? 'bg-[#10b981]' : 'bg-[#f43f5e]'" />
-                    <span class="font-medium text-[#f3f4f6]">{{ tx.description || tx.category }}</span>
+                    <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="tx.type === 'income' ? 'bg-income' : 'bg-expense'" />
+                    <span class="font-medium text-fg">{{ tx.description || tx.category }}</span>
                   </div>
                 </td>
-                <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle hidden sm:table-cell">
-                  <span class="text-[#9ca3af] bg-[#171a26] border border-[#222533] px-1.5 py-0.5 rounded text-[0.75rem]">{{ tx.category }}</span>
+                <td class="px-3 py-3 text-[0.85rem] border-b border-fg/[0.07] align-middle hidden sm:table-cell">
+                  <span class="text-muted bg-elevated border border-border px-1.5 py-0.5 rounded text-[0.75rem]">{{ tx.category }}</span>
                 </td>
-                <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle hidden md:table-cell">
-                  <span class="text-[#9ca3af] text-[0.8rem]">{{ formatDate(tx.date) }}</span>
+                <td class="px-3 py-3 text-[0.85rem] border-b border-fg/[0.07] align-middle hidden md:table-cell">
+                  <span class="text-muted text-[0.8rem]">{{ formatDate(tx.date) }}</span>
                 </td>
-                <td class="px-3 py-3 text-[0.85rem] border-b border-white/[0.03] align-middle text-right">
-                  <span class="font-semibold tabular-nums" :class="tx.type === 'income' ? 'text-[#10b981]' : 'text-[#f3f4f6]'">
+                <td class="px-3 py-3 text-[0.85rem] border-b border-fg/[0.07] align-middle text-right">
+                  <span class="font-semibold tabular-nums" :class="tx.type === 'income' ? 'text-income' : 'text-fg'">
                     {{ tx.type === 'income' ? '+' : '-' }}{{ formatIDR(tx.amount) }}
                   </span>
                 </td>
@@ -201,26 +201,26 @@
       <!-- Expense Breakdown -->
       <div class="card flex flex-col">
         <div class="mb-5">
-          <h3 class="m-0 text-[0.95rem] font-semibold text-[#f3f4f6]">Rincian Pengeluaran</h3>
-          <p class="mt-0.5 mb-0 text-[0.75rem] text-[#9ca3af]">Distribusi pengeluaran per kategori</p>
+          <h3 class="m-0 text-[0.95rem] font-semibold text-fg">Rincian Pengeluaran</h3>
+          <p class="mt-0.5 mb-0 text-[0.75rem] text-muted">Distribusi pengeluaran per kategori</p>
         </div>
 
-        <div v-if="categoryBreakdown.length === 0" class="flex flex-col items-center justify-center py-12 text-[#9ca3af] text-[0.82rem] gap-2">
+        <div v-if="categoryBreakdown.length === 0" class="flex flex-col items-center justify-center py-12 text-muted text-[0.82rem] gap-2">
           <span>Belum ada data pengeluaran.</span>
         </div>
 
         <div v-else class="flex flex-col gap-4">
           <div v-for="cat in categoryBreakdown" :key="cat.name" class="flex flex-col gap-1.5">
             <div class="flex justify-between items-center text-[0.85rem]">
-              <span class="font-medium text-[#f3f4f6]">{{ cat.name }}</span>
-              <span class="font-semibold text-[#f3f4f6]">
+              <span class="font-medium text-fg">{{ cat.name }}</span>
+              <span class="font-semibold text-fg">
                 {{ formatIDR(cat.amount) }}
-                <span class="font-normal text-[#9ca3af] text-[0.75rem]">({{ cat.pct.toFixed(0) }}%)</span>
+                <span class="font-normal text-muted text-[0.75rem]">({{ cat.pct.toFixed(0) }}%)</span>
               </span>
             </div>
-            <div class="h-1 bg-[#171a26] rounded-sm overflow-hidden">
+            <div class="h-1 bg-elevated rounded-sm overflow-hidden">
               <div
-                class="h-full bg-[#6366f1] rounded-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                class="h-full bg-brand rounded-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                 :style="{ width: cat.pct + '%' }"
               />
             </div>
@@ -237,6 +237,10 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar, Doughnut } from 'vue-chartjs';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+
+// Chart.js paints to a canvas, so it needs literal colours rather than the
+// CSS custom properties the rest of the UI uses. These re-resolve on theme change.
+const theme = useThemeColors();
 
 const props = defineProps({
   summary: { type: Object, required: true },
@@ -300,7 +304,7 @@ const barChartData = computed(() => {
     datasets: [
       {
         label: 'Pemasukan',
-        backgroundColor: '#10b981',
+        backgroundColor: theme.colors.value.income,
         data: sorted.map(m => m.income),
         borderRadius: 4,
         barPercentage: 0.6,
@@ -308,7 +312,7 @@ const barChartData = computed(() => {
       },
       {
         label: 'Pengeluaran',
-        backgroundColor: '#f43f5e',
+        backgroundColor: theme.colors.value.expense,
         data: sorted.map(m => m.expense),
         borderRadius: 4,
         barPercentage: 0.6,
@@ -318,7 +322,7 @@ const barChartData = computed(() => {
   };
 });
 
-const barChartOptions = {
+const barChartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   interaction: {
@@ -326,12 +330,12 @@ const barChartOptions = {
     intersect: false,
   },
   plugins: {
-    legend: { labels: { color: '#9ca3af', usePointStyle: true, boxWidth: 6 } },
+    legend: { labels: { color: theme.colors.value.muted, usePointStyle: true, boxWidth: 6 } },
     tooltip: {
-      backgroundColor: '#171a26',
-      titleColor: '#f3f4f6',
-      bodyColor: '#9ca3af',
-      borderColor: '#222533',
+      backgroundColor: theme.colors.value.elevated,
+      titleColor: theme.colors.value.fg,
+      bodyColor: theme.colors.value.muted,
+      borderColor: theme.colors.value.border,
       borderWidth: 1,
       callbacks: {
         label: (context) => ` ${context.dataset.label}: ${formatIDR(context.raw)}`
@@ -339,18 +343,18 @@ const barChartOptions = {
     }
   },
   scales: {
-    x: { grid: { color: '#222533', drawBorder: false }, ticks: { color: '#9ca3af' } },
-    y: { grid: { color: '#222533', drawBorder: false }, ticks: { color: '#9ca3af' } }
+    x: { grid: { color: theme.colors.value.border, drawBorder: false }, ticks: { color: theme.colors.value.muted } },
+    y: { grid: { color: theme.colors.value.border, drawBorder: false }, ticks: { color: theme.colors.value.muted } }
   }
-};
+}));
 
 const doughnutChartData = computed(() => {
   return {
     labels: categoryBreakdown.value.map(c => c.name),
     datasets: [
       {
-        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6'],
-        borderColor: '#11131c',
+        backgroundColor: theme.categoryPalette.value,
+        borderColor: theme.colors.value.surface,
         borderWidth: 2,
         hoverOffset: 4,
         data: categoryBreakdown.value.map(c => c.amount)
@@ -359,19 +363,19 @@ const doughnutChartData = computed(() => {
   };
 });
 
-const doughnutChartOptions = {
+const doughnutChartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
     legend: { 
       position: 'right', 
-      labels: { color: '#9ca3af', usePointStyle: true, boxWidth: 8, padding: 15 } 
+      labels: { color: theme.colors.value.muted, usePointStyle: true, boxWidth: 8, padding: 15 } 
     },
     tooltip: {
-      backgroundColor: '#171a26',
-      titleColor: '#f3f4f6',
-      bodyColor: '#9ca3af',
-      borderColor: '#222533',
+      backgroundColor: theme.colors.value.elevated,
+      titleColor: theme.colors.value.fg,
+      bodyColor: theme.colors.value.muted,
+      borderColor: theme.colors.value.border,
       borderWidth: 1,
       callbacks: {
         label: (context) => ` ${context.label}: ${formatIDR(context.raw)}`
@@ -379,5 +383,5 @@ const doughnutChartOptions = {
     }
   },
   cutout: '70%'
-};
+}));
 </script>

@@ -13,7 +13,17 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  modules: ['@nuxt/fonts'],
+  modules: ['@nuxt/fonts', '@nuxtjs/color-mode'],
+
+  colorMode: {
+    // Tokens are overridden under :root[data-theme="light"], so drive the
+    // attribute rather than a class. No suffix: the value is the attribute.
+    preference: 'system',
+    fallback: 'dark',
+    dataValue: 'theme',
+    classSuffix: '',
+    storageKey: 'fintrack-theme',
+  },
 
   css: ['~/assets/css/main.css'],
 
