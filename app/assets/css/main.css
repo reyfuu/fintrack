@@ -1,0 +1,108 @@
+/* Inter is self-hosted by @nuxt/fonts, which picks up the font-family below. */
+@import "tailwindcss";
+
+/* Dark is the base theme. Every colour the UI uses is a token here, so a theme
+   swap is a variable override rather than a sweep through 1,100 lines of
+   markup. Tailwind v4 emits these as CSS custom properties and compiles
+   utilities to var(--color-x), so overriding them in a scope just works.
+
+   Accents carry different values per theme on purpose: #10b981 on white is
+   2.3:1 contrast, which fails for text. The light variants are the 600/700
+   shades, all at least 4.5:1 on the light surface. */
+/* `static`: Tailwind v4 tree-shakes @theme variables that no utility
+   references. The cat-* series is only ever read from JS (Chart.js paints to a
+   canvas), so without this they are stripped and the doughnut renders black. */
+@theme static {
+  --color-bg: #090a0f;        /* page */
+  --color-surface: #11131c;   /* cards */
+  --color-elevated: #171a26;  /* inputs, chips, hover */
+  --color-border: #222533;
+  --color-fg: #f3f4f6;        /* primary text */
+  --color-muted: #9ca3af;     /* secondary text */
+  --color-subtle: #6b7280;    /* placeholders */
+
+  --color-brand: #6366f1;
+  --color-income: #10b981;
+  --color-expense: #f43f5e;
+  --color-cash: #f59e0b;
+  --color-digital: #06b6d4;
+
+  /* Doughnut series, in order. */
+  --color-cat-1: #6366f1;
+  --color-cat-2: #10b981;
+  --color-cat-3: #f59e0b;
+  --color-cat-4: #f43f5e;
+  --color-cat-5: #06b6d4;
+  --color-cat-6: #8b5cf6;
+  --color-cat-7: #ec4899;
+  --color-cat-8: #14b8a6;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-elevated: #f1f3f6;
+  --color-border: #e2e5ec;
+  --color-fg: #111827;
+  --color-muted: #586072;
+  --color-subtle: #868e9e;
+
+  --color-brand: #4f46e5;
+  --color-income: #047857;
+  --color-expense: #be123c;
+  --color-cash: #b45309;
+  --color-digital: #0e7490;
+
+  --color-cat-1: #4f46e5;
+  --color-cat-2: #047857;
+  --color-cat-3: #b45309;
+  --color-cat-4: #be123c;
+  --color-cat-5: #0e7490;
+  --color-cat-6: #6d28d9;
+  --color-cat-7: #be185d;
+  --color-cat-8: #0f766e;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Nuxt's root element is #__nuxt, not #app. */
+#__nuxt {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Moved out of App.vue's non-scoped <style>: .card is used by all three feature
+   components, none of which owned it. */
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadein { animation: fadein 0.15s ease-out; }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Light mode has no elevation from contrast alone, so cards get a soft shadow
+   to stay distinguishable from the page behind them. */
+:root[data-theme="light"] .card {
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+}
+
+/* Native widgets (date picker, select arrow) follow the theme. */
+:root { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
