@@ -234,7 +234,7 @@ const handleSubmit = async () => {
       } else if (typeof data?.error === 'string') {
         errorMsg.value = data.error;
       } else if (data?.error === true) {
-        errorMsg.value = `Request ditolak oleh platform (HTTP ${res.status}). Periksa Deployment Protection Vercel.`;
+        errorMsg.value = `Server gagal memproses transaksi (HTTP ${res.status}). Periksa log Vercel.`;
       } else {
         errorMsg.value = `Gagal menyimpan transaksi (HTTP ${res.status}). Coba lagi.`;
       }
