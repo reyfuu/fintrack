@@ -218,10 +218,26 @@ const handleSubmit = async () => {
       body:    JSON.stringify(form.value)
     });
 
-    const data = await res.json();
+    const responseBody = await res.text();
+    let data;
+    try {
+      data = responseBody ? JSON.parse(responseBody) : null;
+    } catch {
+      data = null;
+    }
 
     if (!res.ok) {
-      errorMsg.value = data.error || 'Terjadi kesalahan.';
+      // Vercel can block API requests at the platform edge before Nitro runs.
+      // Those responses may not follow our { error: string } API contract.
+      if (res.status === 401 || res.status === 403) {
+        errorMsg.value = 'Akses API ditolak Vercel. Periksa Deployment Protection untuk domain ini.';
+      } else if (typeof data?.error === 'string') {
+        errorMsg.value = data.error;
+      } else if (data?.error === true) {
+        errorMsg.value = `Request ditolak oleh platform (HTTP ${res.status}). Periksa Deployment Protection Vercel.`;
+      } else {
+        errorMsg.value = `Gagal menyimpan transaksi (HTTP ${res.status}). Coba lagi.`;
+      }
       return;
     }
 
